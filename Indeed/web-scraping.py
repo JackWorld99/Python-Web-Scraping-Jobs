@@ -53,10 +53,12 @@ def extract(soup):
 def output (joblist, searchTerm):
     if len(joblist) > 0:
         df = pd.DataFrame(joblist)
-    print(df.head())
-    # df.to_json(searchTerm.replace('+', ' ') + ' Job List.json')
-    df.to_csv(searchTerm.replace('+', ' ') + ' Job List.csv', index = False)
-    print('Saved to CSV')
+        print(df.head())
+        # df.to_json(searchTerm.replace('+', ' ') + ' Job List.json')
+        df.to_csv(searchTerm.replace('+', ' ') + ' Job List.csv', index = False)
+        print('Saved to CSV')
+    else: 
+        print("No expected Job match...")
     return
 
 
