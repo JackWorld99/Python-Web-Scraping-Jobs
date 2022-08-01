@@ -12,11 +12,13 @@ def fetch_data(page, searchTerm):
     return soup
 
 def extract(soup):
-    joblist = []
     divs = soup.find_all('div', class_ = 'job_seen_beacon')
     for item in divs:
         title = item.find('h2', class_ = 'jobTitle').text.strip()
-        company = item.find('span', class_ = 'companyName').text.strip()
+        try:
+            company = item.find('span', class_ = 'companyName').text.strip()
+        except:
+            company = ''
         try:
             pay = item.find('div', class_ = 'attribute_snippet').text.strip()
             if '$' not in pay:
@@ -50,7 +52,7 @@ def extract(soup):
             joblist.append(job)
     return joblist
  
-def output (joblist, searchTerm):
+def output(joblist, searchTerm):
     if len(joblist) > 0:
         df = pd.DataFrame(joblist)
         print(df.head())
@@ -61,8 +63,9 @@ def output (joblist, searchTerm):
         print("No expected Job match...")
     return
 
+joblist = []
 
-for i in range(0,210,10):
+for i in range(0,220,10):
     print(f'Getting page, {i}')
     soup = fetch_data(i, searchTerm)
     joblist = extract(soup)
