@@ -19,35 +19,50 @@ def extract(soup):
         company = item.find('span', class_ = 'companyName').text.strip()
         try:
             pay = item.find('div', class_ = 'attribute_snippet').text.strip()
-            pay.index('$')
+            if '$' not in pay:
+                raise ValueError()
+
             salary = pay
+            char_to_replace = {'$': '',',': '','-':''}
+            replaced = salary.translate(str.maketrans(char_to_replace))
+            r_space = replaced.strip()
+            arr = r_space.split(' ')
+            if len(arr)>2 and arr[2].isnumeric():
+                expect_pay = arr[2]
+            elif arr[0].isnumeric():
+                expect_pay = arr[0]
+            else:
+                expect_pay = '0'
         except:
             salary = ''
         summary = item.find('div', class_ = 'job-snippet').text.strip()
         find_href = item.find('a', class_ ='jcs-JobTitle')['href']
         link = 'https://sg.indeed.com' + find_href
 
-        job = {
-            'Job Title': title,
-            'Company Name': company,
-            'Salary (Month)': salary,
-            'Link': link,
-            'Summary': summary
-        }
-        joblist.append(job)
+        if len(salary) > 0 and int(expect_pay) >= 3200:
+            job = {
+                'Job Title': title,
+                'Company Name': company,
+                'Salary (Month)': salary,
+                'Link': link,
+                'Summary': summary
+            }
+            joblist.append(job)
     return joblist
  
 def output (joblist, searchTerm):
-    df = pd.DataFrame(joblist)
+    if len(joblist) > 0:
+        df = pd.DataFrame(joblist)
     print(df.head())
+    # df.to_json(searchTerm.replace('+', ' ') + ' Job List.json')
     df.to_csv(searchTerm.replace('+', ' ') + ' Job List.csv', index = False)
     print('Saved to CSV')
     return
 
 
-for i in range(0,50,10):
+for i in range(0,210,10):
     print(f'Getting page, {i}')
     soup = fetch_data(i, searchTerm)
     joblist = extract(soup)
 
-output (joblist, searchTerm)
+output(joblist, searchTerm)
